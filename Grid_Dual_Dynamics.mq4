@@ -12,8 +12,8 @@ input double GridStart = 1.10000 , GridEnd = 1.35000;
 input double LOTS = 0.01; 
 input int SLIPPAGE = 3;
 input int MAGIC_NUMBER = 1111;
-input int Step = 5;
-double GridDistance = 100;
+input int Step = 2;
+input double GridDistance = 50;
 double Ticket;
 int OnInit()
 {
@@ -24,11 +24,11 @@ int OnInit()
 
 void OnTick()
 {
-    if(CountOrder(OP_BUYLIMIT) != 0 || CountOrder(OP_BUY) != 0)
+    if(CountOrder(OP_BUYLIMIT) || CountOrder(OP_BUY))
     {
     BuyCondition();
     }
-    if(CountOrder(OP_SELLLIMIT) != 0 || CountOrder(OP_SELL) != 0)
+    if(CountOrder(OP_SELLLIMIT) || CountOrder(OP_SELL))
     {
     SellCondition();
     }
@@ -43,7 +43,7 @@ void BuyCondition()
         {
             if( n < Step)
             {   
-                if(!AdjustOrder(currentGrid,OP_BUYLIMIT,OP_BUY))
+                if(AdjustOrder(currentGrid,OP_BUYLIMIT,OP_BUY))
                 {
                     Ticket = OrderSend(Symbol(), OP_BUYLIMIT, LOTS, NormalizeDouble(currentGrid,Digits), SLIPPAGE, 0, currentGrid+GridDistance*Point, "Buy", 0, 0, clrGreen);      
                 }                               
@@ -62,7 +62,7 @@ void SellCondition()
         {
             if( n < Step)
             {   
-                if(!AdjustOrder(currentGrid,OP_SELLLIMIT,OP_SELL))
+                if(AdjustOrder(currentGrid,OP_SELLLIMIT,OP_SELL))
                 {
                     Ticket = OrderSend(Symbol(), OP_SELLLIMIT, LOTS, NormalizeDouble(currentGrid,Digits), SLIPPAGE, 0, currentGrid-GridDistance*Point, "Sell", 0, 0, clrRed);      
                 }                               
@@ -82,11 +82,11 @@ bool AdjustOrder(double grid,int typelimit,int typeorder)
         {
             if((OrderType() == typelimit || OrderType() == typeorder) && checkprice(OrderOpenPrice(),grid))
             {
-                return True;   
+                return False;   
             }
         }             
     }
-    return False;
+    return True;
 }
 
 int CountOrder(int type) 
@@ -106,4 +106,3 @@ int CountOrder(int type)
 }
 
 // EURUSD
-
